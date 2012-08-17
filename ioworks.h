@@ -26,7 +26,8 @@ char* readline_new(FILE* file, char** cbufptr)
 {
   char* cbuf;
   cbuf = readline(file,0);
-  *cbufptr = cbuf;
+  if (cbufptr)
+		*cbufptr = cbuf;
   return cbuf;
 }
 

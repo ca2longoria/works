@@ -311,30 +311,32 @@ int boyerMooreSearch(char* s, char* sub)
   tone = boyerMooreTableOne(sub);
   ttwo = boyerMooreTableTwo(sub);
   
+	/* Boo, this guy gives seg faults somewhere... */
+	
   index = -1;
   i = sublen-1;
   while (i < slen)
   {
-    /*printf("i: %i\n", i);*/
+/*printf("i: %i\n", i);*/
     c = s[i];
     
     jump1 = 0;
     
-    /* Utilization of table two */
+/* Utilization of table two */
     jump2 = ttwo[(uint)c];
-    /*printf("jump2 for c(%c): %i\n", c,jump2);*/
+/*printf("jump2 for c(%c): %i\n", c,jump2);*/
     
     if (jump2 || c == sub[sublen-1])
     {
-      /* Utilization of table one */
+/* Utilization of table one */
       for (j = 0; j < sublen; ++j)
       {
-        /*printf("comparing (%c) to (%c)\n", s[i-j], sub[sublen-j-1]);*/
+/*printf("comparing (%c) to (%c)\n", s[i-j], sub[sublen-j-1]);*/
         if (s[i-j] != sub[sublen-j-1])
         {
-          /* A non-matching character, so pull from table one */
+/* A non-matching character, so pull from table one */
           jump1 = tone[j];
-          /*printf("jump1 gets value: %i\n", jump1);*/
+/*printf("jump1 gets value: %i\n", jump1);*/
           break;
         }
       }
@@ -344,12 +346,12 @@ int boyerMooreSearch(char* s, char* sub)
  
     if (j == sublen)
     {
-      /* Wait, what!  A match!  We've got a match! */
+/* Wait, what!  A match!  We've got a match! */
       index = i-sublen+1;
       break;
     }
     
-    /*printf("jump1 vs jump2: %i vs %i\n", jump1, jump2);*/
+/*printf("jump1 vs jump2: %i vs %i\n", jump1, jump2);*/
     i += (jump1 > jump2 ? jump1 : jump2);
   }
   
