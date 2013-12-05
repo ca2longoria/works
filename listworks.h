@@ -1,243 +1,183 @@
 #ifndef listworks_h
 #define listworks_h
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "sortworks.h"
+
+/* (not sure where to put this...) */
+typedef unsigned int bit_flag;
+#define DEL_NONE   0x1
+#define DEL_STRUCT 0x2
+#define DEL_DATA   0x4
+#define DEL_KEYS   0x8
+#define DEL_VALS   0x10
+typedef int(*comp_func)(void*,void*);
 
 
-/*{ TYPEDEF: voidarray*/
-/* voidarray is just a void**, but used here for naming convenience between its functions */
-typedef void** voidarray;
-
-voidarray alloc_voidarray(int len)
+// ilist (interface) {
+typedef struct
 {
-  return malloc(sizeof(void*)*len);
+	int(*size)(void*);
+	
+	void*(*add)(void*,void*);
+	void*(*set)(void*,int,void*);
+	void*(*insert)(void*,int,void*);
+	void*(*remove)(void*,int);
+	void*(*remove_object)(void*,void*);
+	
+	void*(*get)(void*,int);
+	void*(*first)(void*);
+	void*(*last)(void*);
+	
+	int(*index)(void*,void*);
+	int(*index_comp)(void*,void*,comp_func);
 }
+ilist;
+//}
 
-void del_data_voidarray(voidarray varr, int len)
+
+// arrlist api (or interface?) {
+
+//typedef struct _arrlist arrlist;
+typedef struct
 {
-  int i;
-  for (i = 0; i < len; ++i)
-    free(varr[i]);
-}
+	int size;
+	int truesize;
+	float multiplier;
+	
+	void** data;
+} arrlist;
 
-/* del_data_len doubles as both a del_data flag and the length of the array to delete data from */
-void del_voidarray(voidarray varr, int del_data_len) 
+arrlist* alloc_arrlist();
+arrlist* init_arrlist(arrlist* arr, int size);
+arrlist* new_arrlist(int size);
+
+void del_arrlist(arrlist* arr, bit_flag del_flags);
+
+int sizeof_arrlist();
+
+int arrlist_size(arrlist* arr);
+
+void* arrlist_add(arrlist* arr, void* ob);
+void* arrlist_set(arrlist* arr, int index, void* ob);
+void* arrlist_insert(arrlist* arr, int index, void* ob);
+void* arrlist_remove(arrlist* arr, int index);
+void* arrlist_remove_object(arrlist* arr, void* ob);
+
+void* arrlist_get(arrlist* arr, int index);
+void* arrlist_first(arrlist* arr);
+void* arrlist_last(arrlist* arr);
+
+int arrlist_index(arrlist* arr, void* ob);
+int arrlist_index_comp(arrlist* arr, void* ob, comp_func cmp);
+
+ilist* ilist_arrlist(ilist* il);
+//}
+
+
+// nodelist api {
+
+typedef struct
 {
-  if (del_data_len)
-    del_data_voidarray(varr,del_data_len);
-  free(varr);
-}
-
-/*{ DEFINE: voidarray_define_type*/
-
-#define voidarray_define_type(type) \
-voidarray voidarray_ ## type ## s(voidarray varr, type * arr, int len) \
-{ \
-  int i; \
-  varr = (varr ? varr : alloc_voidarray(len)); \
-  for (i = 0; i < len; ++i) \
-    varr[i] = (void*)&arr[i]; \
-  return varr; \
-} \
-voidarray voidarray_new_ ## type ## s(voidarray varr, type * arr, int len) \
-{ \
-  int i; \
-  varr = (varr ? varr : alloc_voidarray(len)); \
-  for (i = 0; i < len; ++i) \
-  { \
-    varr[i] = malloc(sizeof(type*)); \
-    type** ptr = (type**)&varr[i]; \
-    **ptr = arr[i]; \
-  } \
-  return varr; \
-} \
-voidarray voidarray_ ## type ## ptrs(voidarray varr, type ** arr, int len) \
-{ \
-  int i; \
-  varr = (varr ? varr : alloc_voidarray(len)); \
-  for (i = 0; i < len; ++i) \
-    varr[i] = (void*)arr[i]; \
-  return varr; \
-} \
-type * voidarray_to_ ## type ## s(voidarray varr, type * arr, int len) \
-{ \
-  int i; \
-  arr = (arr ? arr : malloc(sizeof(type)*len)); \
-  for (i = 0; i < len; ++i) \
-    arr[i] = *(type*)varr[i]; \
-  return arr; \
-} \
-type ** voidarray_to_ ## type ## ptrs(voidarray varr, type ** arr, int len) \
-{ \
-  int i; \
-  arr = (arr ? arr : malloc(sizeof(type*)*len)); \
-  for (i = 0; i < len; ++i) \
-    arr[i] = (type*)varr[i]; \
-  return arr; \
-}
-
-/*}*/
-
-voidarray_define_type(char);
-voidarray_define_type(int);
-voidarray_define_type(float);
-/*} END voidarray*/
-
-
-/*{ STRUCT: node*/
-/* Simplest node EVAH */
-struct _node
+	void* next;
+	void* data;
+} node1;
+typedef struct
 {
-  void* data;
-  void* next;
-};
-typedef struct _node node;
+	int size;
+	node1* first;
+	node1* last;
+} nodelist;
 
-node* alloc_node()
+nodelist* alloc_nodelist();
+nodelist* init_nodelist(nodelist* nl);
+nodelist* new_nodelist();
+
+void del_nodelist(nodelist* nl, bit_flag del_flags);
+
+int nodelist_size(nodelist* nl);
+
+void* nodelist_add(nodelist* nl, void* ob);
+void* nodelist_set(nodelist* nl, int index, void* ob);
+void* nodelist_insert(nodelist* nl, int index, void* ob);
+void* nodelist_remove(nodelist* nl, int index);
+void* nodelist_remove_object(nodelist* nl, void* ob);
+
+void* nodelist_get(nodelist* nl, int index);
+void* nodelist_first(nodelist* nl);
+void* nodelist_last(nodelist* nl);
+
+int nodelist_index(nodelist* nl, void* ob);
+int nodelist_index_comp(nodelist* arr, void* ob, comp_func cmp);
+
+ilist* ilist_nodelist(ilist* il);
+//}
+
+
+// arrqueue (not sure about this one being here, either...) {
+
+//typedef struct _arrqueue arrqueue;
+typedef struct
 {
-  return (node*)malloc(sizeof(node));
-}
+	void** arr;
+	int arrsize;
+	int size;
+	int xn;
+	int xd;
+} arrqueue;
 
-node* init_node(node* n, void* data, void* next)
+arrqueue* alloc_arrqueue();
+arrqueue* init_arrqueue(arrqueue* q, void** arr, int size);
+arrqueue* new_arrqueue(void*,int);
+
+void del_arrqueue(arrqueue*,bit_flag);
+
+int sizeof_arrqueue();
+
+int arrqueue_size(arrqueue*);
+
+void* arrqueue_nq(arrqueue*,void*);
+void* arrqueue_dq(arrqueue*);
+
+void* iter_arrqueue(arrqueue*,int*);
+void* iter_arrqueue_next(arrqueue*,int*);
+int iter_arrqueue_has_next(arrqueue*,int*);
+
+// }
+
+
+// binary search tree api (should this really be in this file?) {
+//typedef struct _bintree bintree;
+
+typedef struct
 {
-  n->data = data;
-  n->next = next;
-  return n;
-}
+	int weight;
+	void* parent;
+	void* left;
+	void* right;
+	void* data;
+} bintree_node;
 
-void del_node(node* n, int del_data)
+typedef struct
 {
-  if (del_data)
-    free(n->data);
-  free(n);
-}
-/*} END STRUCT*/
+	int size;
+	bintree_node* root;
+	compfunc comp;
+} bintree;
 
+bintree* alloc_bintree();
+bintree* init_bintree(bintree*,comp_func);
+bintree* new_bintree(comp_func);
 
-/*{ STRUCT: nodelist*/
-/* Here's a list made of the above node struct */
-struct _nodelist
-{
-  node* first;
-  node* last;
-  int size;
-};
-typedef struct _nodelist nodelist;
+void del_bintree(bintree*,bit_flag);
 
-nodelist* alloc_nodelist()
-{
-  return (nodelist*)malloc(sizeof(nodelist));
-}
+void* bintree_add(bintree*,void*);
+void* bintree_contains(bintree*,void*);
 
-nodelist* init_nodelist(nodelist* nlist)
-{
-  nlist->first = 0;
-  nlist->last = 0;
-  nlist->size = 0;
-  return nlist;
-}
+void* iter_bintree(bintree*);
+void* iter_bintree_next(void**);
+int iter_bintree_has_next(void**);
 
-del_nodelist(nodelist* nlist, int del_data)
-{
-  int i;
-  
-  node* n = nlist->first;
-  node* n2 = 0;
-  
-  for (i=0; i<nlist->size; ++i)
-  {
-    n2 = n->next;
-    del_node(n,del_data);
-    n = n2;
-  }
-  free(nlist);
-}
-
-void* nodelist_pop(nodelist* nlist)
-{
-  node* nfirst;
-  void* data;
-  
-  if (nlist->size == 0)
-    return 0;
-  
-  --nlist->size;
-    
-  if (nlist->size == 0)
-  {
-    data = nlist->first->data;
-    del_node(nlist->first,0);
-    nlist->first = 0;
-    nlist->last = 0;
-    return data;
-  }
-  
-  nfirst = nlist->first->next;
-  data = nlist->first->data;
-  del_node(nlist->first,0);
-  nlist->first = nfirst;
-
-  return data;
-}
-
-nodelist* nodelist_push_node(nodelist* nlist, node* n)
-{
-  if (!nlist->first)
-  {
-    nlist->first = n;
-    nlist->last = n;
-    nlist->size += 1;
-    return nlist;
-  }
-  nlist->last->next = n;
-  nlist->last = n;
-  nlist->size += 1;
-  return nlist;
-}
-
-node* nodelist_pop_node(nodelist* nlist)
-{
-  node* nfirst;
-  
-  if (nlist->size == 0)
-    return 0;
-  
-  --nlist->size;
-  
-  if (nlist->size == 0)
-  {
-    nfirst = nlist->first;
-    nlist->first = 0;
-    nlist->last = 0;
-    return nfirst;
-  }
-  
-  nfirst = nlist->first;
-  nlist->first = nlist->first->next;
-  
-  return nfirst;
-}
-
-nodelist* nodelist_add(nodelist* nlist, void* data)
-{
-  node* n = init_node(alloc_node(),data,0);
-  return nodelist_push_node(nlist,n);
-}
-
-#define nodelist_push(a,b) nodelist_add(a,b)
-
-void* nodelist_first(nodelist* nlist)
-{
-  return (nlist->first ? nlist->first->data : 0);
-}
-
-void* nodelist_last(nodelist* nlist)
-{
-  return (nlist->last ? nlist->last->data : 0);
-}
-
-/*} END STRUCT*/
+//}
 
 
 #endif

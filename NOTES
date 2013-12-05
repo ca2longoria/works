@@ -1,0 +1,112 @@
+
+================================================================================
+2013/02/11
+
+1)
+There is a fatal flaw in all this that I just realized (as the result of a compilation error).
+
+None of the utilized object structs are declared in the headers.  The compiler cannot determine the sizeof or other such stats of inline struct variables.  In other words, while, say, new_arrlist(...) works just fine, arrlist var; does not.  One cannot declare...
+
+arrlist a;
+
+... inside a function.  It must be a pointer which is passed an address from a callable function, like so...
+
+arrlist* a = new_arrlist(...)
+
+I'm not sure what to do about this, but for now, the new_-prefixed, malloc-ing functions will simply have to do.
+
+2)
+What about searches?  Like the binary search?  Do I put that in sortworks.h as well?  Do I just put anything that involves compfuncs in sortworks?  How should I organize that going forward?  (First time I use the phrase "going forward", yaaay!)
+
+
+================================================================================
+2013/02/20
+
+1)
+It occcurs to me that a kind of buffer queue structure should be available.  I'm thinking a simple array of int indexes referencing an array of structures.  Two index values, one for the next to dq and one for the next to nq, should rotate around the array, modded by the array's length.  I think that'll do.
+
+Wait, now that I think about it, the object returned would have to store that integer value in order to be matched with the target array.  Maybe just an array of void*s.  Yeah, let's get rid of the whole buffer-behavior.  It'll be a queue of void*s.
+
+
+================================================================================
+2013/02/21
+
+1)
+Regarding arrqueue's iter_arrqueue functions, it looks like the simplest handler to use is a mere int*.  I've changed the parameters from (arrqueue*,void**) to (arrqueue*,int*) in the header and .c file to match.  This of course breaks from whatever barely-if-any convention I had going with the void** from the iter_bintree functions.  But I guess this is okay.  It'll be documented at some point, anyway
+
+2)
+That said, what about documentation?  It'll be a task to go back through this all and add documentation in the appropriate places.
+
+3)
+Back to arrqueue.c, it feels like my implementation of xd and xns' modulus behavior is... inelegant.  It sounds good on paper, but then that leaves a modulus in arrqueue_nq, but not one in arrqueue_dq.  I guess one mod is better than two, but it still feels odd.
+
+4)
+Also, speaking of iter-s, it's seeming like iter_BLARG_next essentially provides the same information as iter_BLARG_has_next, in that 0 is returned whenever ther is no next available, essentially removing iter_BLARG_has_next's need from the equation (the rhetorical equation, not a real equation; don't be silly).
+
+5)
+Now here's a question about deletion.  Right now, DEL_DATA runs a free() on all queued items, and then it goes and frees the void**.  However, that void** could have been passed in as a preexisting buffer, which's pointed-to objects still do require free-ing.  At the moment, I'll use DEL_DATA only in cases where zero is passed in as the void** (which forces it to malloc its own).  Either that, or store a variable in the structure that will flag an auto-free.
+
+
+================================================================================
+2013/08/30
+
+1)
+It has been determined that in some cases where .h/.c combos reference other/earlier headers, certain structs are considered undefined.  This setup makes compilation of stringworks.c, for example, impossible.  The setup must be changed back, somehow.  Perhaps by using the full headers at first, and separating functions and struct declarations into their own files afterwards.  Not sure if that'd work, though.
+
+
+================================================================================
+2013/09/03
+
+1)
+The problem lies in struct definitions.  Structs and typedef structs *must* be declared within the header file.  This means I cannot treat this as an interface setup.  Interaction with the struct contents will be possible, so they require modification in order to be generic as the forward-declared functions that use them.
+
+2)
+In sorting these files out, let us consider the c files split in this manner:
+	a) single struct function definitions
+	b) function definitions independent of a struct
+
+As such, the available files can be arranged so:
+	a) arrlist.c, arrqueue.c, bintree.c, nodelist.c, table.c
+	b) compfunc.c, filefuncs.c, mergesort.c, search.c
+
+The headers are fewer, and, so split, consist of:
+	a) listworks.h, tableworks.h
+	b) fileworks.h, sortworks.h
+
+3)
+Regarding stringworks, it is valuable primarily for two things:
+	1) stringbuilder
+	2) Boyer-Moore string search
+
+Most likely, I will retain the stringworks.h file, but move the Boyer-Moore implementation to search.h and boyermoore.c.  A stringbuilder.c file will hold the stringbuilder function declarations.
+
+4)
+So far, I've fixed...
+- arrlist.c
+- arrqueue.c
+- bintree.c
+- nodelist.c
+- table.c
+
+That should be all of them.  Looks like table.c has an unimplemented table_iter struct+functions, but we can touch on that later.
+
+5)
+Looks like search.c is used by sortworks.h.  Boyer-Moore will stay where it is, in the unused _stringworks.c file, for now.
+
+
+================================================================================
+2013/10/07
+
+1)
+Updated the version number to 0.0.11 from 0.0.9, since there are now 2 more c files.
+
+2)
+Thinking against putting boyermoore into search.c, since search.c seems to be dealing with generic searches, rather than string-specific, like boyerMooreSearch.
+
+
+================================================================================
+2013/10/08
+
+1)
+Added /usr/lib/cworks/* to the Makefile.  Updated the 'code' repo on Jupiter, but one of the test files could not find #include <cworks/*>.  Hopefully, /usr/lib/* is library-inclusive even when /usr/local/lib/* is not.
+

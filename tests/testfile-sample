@@ -1,0 +1,1 @@
+clear && gcc -Dmtrace_active compfunc.o bintree.c && clear && ./a.out && echo MTRACE: && mtrace out.trace
