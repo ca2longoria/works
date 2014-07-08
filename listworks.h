@@ -9,7 +9,7 @@ typedef unsigned int bit_flag;
 #define DEL_STRUCT 0x2
 #define DEL_DATA   0x4
 #define DEL_KEYS   0x8
-#define DEL_VALS   0x10
+#define DEL_VALS   0x16
 typedef int(*comp_func)(void*,void*);
 
 
