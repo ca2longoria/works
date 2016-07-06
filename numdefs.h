@@ -1,12 +1,15 @@
 #ifndef numdefs_h
 #define numdefs_h
 
+// It appears a few of these are common under /usr/include/sys/types.h
+// as old campatibility names for C types.
+
 #ifndef uint
-#define uint unsigned int
+//#define uint unsigned int
 #endif
 
 #ifndef ulong
-#define ulong unsigned long
+//#define ulong unsigned long
 #endif
 
 #ifndef llong

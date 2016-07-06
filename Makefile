@@ -5,7 +5,7 @@
 export LD_LIBRARY_PATH := .
 
 LIBNAME = libcworks
-VERSION = 0.0.11
+VERSION = 0.0.12
 BASEVERSION = 0
 
 LIB=$(LIBNAME).so
@@ -15,7 +15,7 @@ BLIB=$(LIB).$(BASEVERSION)
 LINKDIR=/usr/local/lib
 ROOTLINKDIR=/usr/lib
 
-all: listworks sortworks stringworks tableworks fileworks
+all: listworks sortworks stringworks tableworks fileworks intworks
 	gcc -shared -o $(VLIB) *.o
 	ln -sf $(VLIB) $(LIB)
 
@@ -25,6 +25,7 @@ sortworks: compfunc.o search.o mergesort.o
 stringworks: stringbuilder.o boyermoore.o
 tableworks: table.o
 fileworks: filefuncs.o
+intworks: ranges.o
 
 
 # Well, these are sorted alphabetically.  In need of better organization
@@ -51,6 +52,9 @@ mergesort.o:
 
 nodelist.o:
 	gcc -c $(OPT) -fpic nodelist.c
+
+ranges.o:
+	gcc -c $(OPT) -fpic ranges.c
 
 search.o:
 	gcc -c $(OPT) -fpic search.c
@@ -90,6 +94,4 @@ uninstall:
 	-rm $(ROOTLINKDIR)/$(BLIB)
 	-rm -r /usr/local/include/cworks
 
-testy:
-	gcc -lcworks -L. -L/usr/local/lib -o test test.c
 

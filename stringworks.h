@@ -27,6 +27,7 @@ typedef struct
 
 stringbuilder* alloc_stringbuilder();
 stringbuilder* init_stringbuilder(stringbuilder* sb, int buflen);
+stringbuilder* new_stringbuilder(int buflen);
 
 void del_data_stringbuilder(stringbuilder* sb);
 void del_stringbuilder(stringbuilder* sb);

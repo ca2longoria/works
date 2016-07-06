@@ -38,7 +38,7 @@ int strcharindex(char* s, char c, int reverse)
 /* initialization functions */
 stringbuilder* alloc_stringbuilder()
 {
-  return malloc(sizeof(stringbuilder));
+  return (stringbuilder*)malloc(sizeof(stringbuilder));
 }
 
 stringbuilder* init_stringbuilder(stringbuilder* sb, int buflen)
@@ -50,6 +50,11 @@ stringbuilder* init_stringbuilder(stringbuilder* sb, int buflen)
   sb->xlen = buflen;
   sb->length = 0;
   return sb;
+}
+
+stringbuilder* new_stringbuilder(int buflen)
+{
+	return init_stringbuilder(alloc_stringbuilder(),buflen);
 }
 
 /* deletion functions: del_data will clear just the data, in case sb isn't dynamically allocated */
