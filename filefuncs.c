@@ -47,3 +47,38 @@ char* readline_new(FILE* file, char** cbufptr)
 }
 //*/
 
+
+char* readlines_callback2(FILE* f, char* cbuf, int len, readline_callback2 call, void* param) {
+	int i,x,count;
+	int line=0;
+	int offset=0;
+	int remainder=0;
+	char* fred=0;
+	readlines_param p1;
+	cbuf = (cbuf ? cbuf : (fred=(char*)malloc(sizeof(char)*len+1)));
+	while (!feof(f)) {
+		count = fread(&cbuf[remainder],1,len-remainder,f);
+		x = 0;
+		for (i=0; i < len; ++i) {
+			if (cbuf[i] == '\n') {
+				cbuf[i] = 0;
+				p1.s = &cbuf[x];
+				p1.length = i-x;
+				p1.line = line;
+				p1.offset = offset;
+				call(&p1,param);
+				line++;
+				offset += (i-x) + 1;
+				x = i+1;
+			}
+		}
+		if (count < len-remainder)
+			break;
+		remainder = len-x;
+		for (i=0; i < remainder; ++i)
+			cbuf[i] = cbuf[x+i];
+		//x = 0;
+	}
+	if (fred)
+		free(cbuf);
+}

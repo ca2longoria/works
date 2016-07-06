@@ -4,12 +4,16 @@
 // It appears a few of these are common under /usr/include/sys/types.h
 // as old campatibility names for C types.
 
-#ifndef uint
-//#define uint unsigned int
-#endif
+// Not for Windows machines, though.  And since I've finally begun using this
+// under a MinGW build environment, as well, it's time to include them.
 
+#if defined(WIN32) || defined(WIN64) || defined(__MINGW32__) || defined(__MINGW64__)
+#ifndef uint
+#define uint unsigned int
+#endif
 #ifndef ulong
-//#define ulong unsigned long
+#define ulong unsigned long
+#endif
 #endif
 
 #ifndef llong

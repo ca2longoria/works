@@ -15,9 +15,11 @@ BLIB=$(LIB).$(BASEVERSION)
 LINKDIR=/usr/local/lib
 ROOTLINKDIR=/usr/lib
 
+WINLINKDIR ?= D:\Lib
+
 all: listworks sortworks stringworks tableworks fileworks intworks
 	gcc -shared -o $(VLIB) *.o
-	ln -sf $(VLIB) $(LIB)
+	-ln -sf $(VLIB) $(LIB)
 
 
 listworks: arrlist.o nodelist.o bintree.o arrqueue.o
@@ -94,4 +96,24 @@ uninstall:
 	-rm $(ROOTLINKDIR)/$(BLIB)
 	-rm -r /usr/local/include/cworks
 
+wclean:
+	-del *.o
+	-del $(LIB)
+	-del $(VLIB)
+
+winstall:
+	copy /Y $(VLIB) $(WINLINKDIR)\cworks\$(VLIB)
+	copy /Y $(VLIB) $(WINLINKDIR)\cworks\$(LIBNAME).dll
+	copy /Y $(VLIB) $(WINLINKDIR)\$(LIBNAME).dll
+	copy /Y $(VLIB) C:\Windows\System32\\
+	copy /Y $(VLIB) C:\Windows\SysWOW64\\
+	copy /Y *.h $(WINLINKDIR)\cworks\\
+
+wuninstall:
+	del $(WINLINKDIR)\cworks\$(VLIB)
+	del $(WINLINKDIR)\cworks\$(LIBNAME).dll
+	del $(WINLINKDIR)\$(LIBNAME).dll
+	del C:\Windows\System32\$(VLIB)
+	del C:\Windows\SysWOW64\$(VLIB)
+	del $(WINLINKDIR)\cworks\*.h
 
